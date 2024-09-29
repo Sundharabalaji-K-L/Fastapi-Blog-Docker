@@ -1,0 +1,100 @@
+# ---------------------------Authentication Endpoints-------------------------------------------------------
+
+# Register
+POST http://localhost:8000/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "email": "admin@example.com",
+  "password": "admin"
+}
+
+###
+
+# Login
+POST http://localhost:8000/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&username=admin@example.com&password=admin
+
+> {% client.global.set("access_token", response.body.token) %}
+
+###
+
+# ------------------------------Blog Post Endpoints---------------------------------------------------------
+
+# Create New Post
+POST http://localhost:8000/blog/post/create
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "title": "my first second post",
+  "content": "testing my create endpoint"
+}
+
+> {% client.global.set("post_id", response.body.id) %}
+
+###
+
+# Get Post by Id
+GET http://localhost:8000/blog/post/{{post_id}}
+Authorization: Bearer {{access_token}}
+
+###
+# Get All Posts
+GET http://localhost:8000/blog/posts
+Authorization: Bearer {{access_token}}
+
+###
+
+# Update Post
+PUT http://localhost:8000/blog/post/update/{{post_id}}
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "title": "Updated my second Blog Post",
+  "content": "testing my update functionality"
+}
+
+###
+
+# Delete Post
+DELETE http://localhost:8000/blog/post/delete/{{post_id}}
+Authorization: Bearer {{access_token}}
+###
+
+# ______________________________Comments Endpoints__________________________________________
+
+# Create New Comment For Post
+POST http://localhost:8000/blog/post/{{post_id}}/comments/add
+Authorization: bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "message": "fastapi is amazing"
+}
+
+> {% client.global.set("comment_id", response.body.id) %}
+###
+
+# Get Comment For Post
+GET http://localhost:8000/blog/post/{{post_id}}/comments
+Authorization: Bearer {{access_token}}
+###
+
+PUT http://localhost:8000/blog/post/{{post_id}}/comments/{{comment_id}}/update/
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "message": "updated fastapi comment"
+}
+
+###
+
+# Delete A Comment
+DELETE http://localhost:8000/blog/post/{{post_id}}/comment/{{comment_id}}/delete
+Authorization: Bearer {{access_token}}
