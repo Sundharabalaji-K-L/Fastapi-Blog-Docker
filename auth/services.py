@@ -2,7 +2,7 @@ from bson import ObjectId
 
 from app.mongodb import database
 from .schemas import RegisterUser
-from .redis_service import exists_in_redis
+from .redis_service import exists_in_redis, get_from_redis, write_to_redis
 from .utils import hash_password
 from .models import User
 
@@ -44,3 +44,30 @@ async def verify_email(email: str):
     )
     print(result.modified_count)
     return result.modified_count
+
+
+async def update_user(user_id: str, values: dict):
+
+    result = await database['users'].update_one(
+        {'_id': ObjectId(user_id)},
+        {'$set': values}
+    )
+
+    return result.modified_count
+
+
+async def update_password(user_id: str, updated_password: str):
+    user = await get_user_details(user_id)
+    data = get_from_redis(user['email'])
+
+    result = await update_user(user_id, {'password': updated_password})
+    data['password'] = updated_password
+    write_to_redis(data['email'], data)
+
+    if result:
+        return True
+
+    return False
+
+
+

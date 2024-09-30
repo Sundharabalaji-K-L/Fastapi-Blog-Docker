@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import EmailStr
 from fastapi_mail.errors import ConnectionErrors
-from .schemas import RegisterUser, TokenSchema
+from .schemas import RegisterUser, TokenSchema, ChangePassword
 from .redis_service import write_to_redis
-from .services import add_user, get_user_details, verify_email, get_user_by_email
-from .utils import verify_user, create_url_safe_token, verify_url_safe_token
-from .oauth2 import create_token, create_refresh_token
+from .services import add_user, get_user_details, verify_email, get_user_by_email, update_password
+from .utils import verify_user, create_url_safe_token, verify_url_safe_token, verify_password, hash_password
+from .oauth2 import create_token, create_refresh_token, get_current_user
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from utils.mail import mail, send_mail
@@ -116,4 +116,24 @@ async def send_verification_mail(email: str = Query(description="email for resen
         "message": "Mail for email verification has been sent, kindly check your inbox",
         "status_code": status.HTTP_201_CREATED
     }
+
+
+@router.post('/change-password', status_code=status.HTTP_200_OK)
+async def change_password(request: ChangePassword, user_id: str = Depends(get_current_user)):
+    if user_id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed")
+
+    user = await get_user_details(user_id)
+
+    if not verify_password(request.old_password, user['password']):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid old password")
+
+    hashed_new_password = hash_password(request.new_password)
+
+    result = await update_password(user_id, hashed_new_password)
+
+    if result:
+        return {'message': 'Password Updated successfully'}
+
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Something went wrong")
 

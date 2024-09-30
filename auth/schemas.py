@@ -11,6 +11,11 @@ class RegisterUser(BaseModel):
     modified_at: datetime = Field(default_factory=datetime.now)
 
 
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+
+
 class TokenSchema(BaseModel):
     access_token: str
     refresh_token: str
