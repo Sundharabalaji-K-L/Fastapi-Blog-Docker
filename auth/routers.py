@@ -95,6 +95,9 @@ async def send_verification_mail(email: str = Query(description="email for resen
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user does not exists')
 
+    if user.get('is_verified'):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Email already verified')
+
     url_token = create_url_safe_token(email)
     email_verification_endpoint = f"http://localhost:8000/auth/email-verify/{url_token}"
     mail_body = {
