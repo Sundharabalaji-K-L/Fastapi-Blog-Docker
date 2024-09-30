@@ -32,9 +32,7 @@ async def get_user_by_email(email: str):
 
 
 async def verify_email(email: str):
-    print(email)
     user = await get_user_by_email(email)
-    print(user)
     if user is None:
         return None
 
@@ -42,7 +40,6 @@ async def verify_email(email: str):
         {'_id': ObjectId(user['_id'])},
         {'$set': {'is_verified': True}}
     )
-    print(result.modified_count)
     return result.modified_count
 
 
