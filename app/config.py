@@ -18,6 +18,13 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
 
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_FROM_NAME: str
+    MAIL_SERVER: str
+    MAIL_PORT: int
+
     class Config:
         env_file = Path(Path(__file__).resolve().parent.parent)/".env"
 

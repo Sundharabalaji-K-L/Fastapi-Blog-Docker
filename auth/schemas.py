@@ -6,6 +6,7 @@ class RegisterUser(BaseModel):
     username: str
     email: EmailStr
     password: str
+    is_verified: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.now)
     modified_at: datetime = Field(default_factory=datetime.now)
 
